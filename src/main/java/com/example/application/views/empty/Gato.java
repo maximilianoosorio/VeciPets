@@ -5,43 +5,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Gato extends Mascota implements IInmunizable {
-    private boolean esIndoor;
+    private boolean esDeCasa;
     private List<String> historialVacunas = new ArrayList<>();
-    
-    private static final double FACTOR_CACHORRO = 0.08;
-    private static final double FACTOR_ADULTO = 0.05;
 
-    public Gato(int id, String nombre, int edadMeses, double peso, boolean esIndoor) {
-        super(id, nombre, edadMeses, (peso > 0 ? peso : 0.5));
-        this.esIndoor = esIndoor;
-    }
-
-    // QUITAMOS EL @Override porque Mascota no tiene este método
-    public double calcularRacion() {
-        double factor = (getEdadMeses() < 6) ? FACTOR_CACHORRO : FACTOR_ADULTO;
-        return getPeso() * factor;
-    }
-
-    public double calcularRacion(double suplemento) {
-        return calcularRacion() + suplemento;
+    public Gato(int id, String nombre, int edad, double peso, boolean esDeCasa) {
+        super(id, nombre, edad, peso);
+        this.esDeCasa = esDeCasa;
     }
 
     @Override
     public String obtenerCuidadosEspeciales() {
-        String base = esIndoor ? "Gato de casa: Necesita rascadores." : "Gato activo: Control de parásitos.";
-        return (getPeso() > 7.0) ? base + " ¡ALERTA! Controlar por sobrepeso." : base;
+        return "Este gatito " + (esDeCasa ? "es totalmente hogareño. " : "le gusta explorar. ") +
+               "Requiere enriquecimiento ambiental con rascadores y juegos de caza. " +
+               "Es muy limpio y ya sabe usar su caja de arena perfectamente.";
     }
 
     @Override
-    public void registrarVacuna(String nombreVacuna, LocalDateTime fecha) {
-        historialVacunas.add(nombreVacuna + " (" + fecha.toLocalDate() + ")");
+    public void registrarVacuna(String nombre, LocalDateTime fecha) {
+        historialVacunas.add(nombre + " (" + fecha.toLocalDate() + ")");
     }
 
     @Override
     public String obtenerEstadoSalud() {
-        if (getPeso() > 7.0) return "Estado felino: Riesgo de obesidad.";
-        if (getEdadMeses() < 3) return "Estado felino: Cachorro.";
-        return "Estado felino: Estable";
+        return historialVacunas.isEmpty() ? "Esquema pendiente" : String.join(" • ", historialVacunas);
     }
 
     public List<String> getHistorialVacunas() { return historialVacunas; }
