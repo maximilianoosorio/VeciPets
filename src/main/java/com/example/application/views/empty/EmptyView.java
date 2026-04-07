@@ -1,74 +1,72 @@
 package com.example.application.views.empty;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.util.List;
-
-@Route("")
+@PageTitle("VeciPets Pro | Inicio")
+@Route(value = "")
 public class EmptyView extends VerticalLayout {
 
+    private HorizontalLayout catalogo = new HorizontalLayout();
+    private List<Mascota> todasLasMascotas;
+
     public EmptyView() {
-
+        setPadding(false);
+        setSpacing(false);
         setSizeFull();
-        getStyle().set("background-color", "#eef3f7");
-        getStyle().set("padding-top", "80px");
+        getStyle().set("background-color", "#f8f9fa");
 
-        HorizontalLayout catalogo = new HorizontalLayout();
+        // 1. Datos iniciales
+        todasLasMascotas = MascotasService.obtenerMascotas();
+
+        // 2. Navbar (Barra Azul)
+        add(new NavbarComponent());
+
+        // 3. BARRA DE FILTROS (Botones)
+        HorizontalLayout filtros = new HorizontalLayout();
+        filtros.setWidthFull();
+        filtros.getStyle().set("padding", "20px");
+        filtros.setJustifyContentMode(JustifyContentMode.CENTER);
+
+        Button btnTodos = new Button("Todos", e -> mostrarMascotas(todasLasMascotas));
+        Button btnPerros = new Button("Perros 🐶", e -> filtrar(Perro.class));
+        Button btnGatos = new Button("Gatos 🐱", e -> filtrar(Gato.class));
+
+        // Estilo a los botones de filtro
+        btnTodos.getStyle().set("cursor", "pointer");
+        btnPerros.getStyle().set("cursor", "pointer");
+        btnGatos.getStyle().set("cursor", "pointer");
+
+        filtros.add(btnTodos, btnPerros, btnGatos);
+        add(filtros);
+
+        // 4. Catálogo (Donde se ven las tarjetas)
         catalogo.setWidthFull();
-        catalogo.getStyle().set("flex-wrap", "wrap");
-        catalogo.getStyle().set("justify-content", "center");
-        catalogo.getStyle().set("gap", "30px");
-
-        List<Mascota> mascotas = MascotasService.obtenerMascotas();
-
-        for (Mascota m : mascotas) {
-
-            VerticalLayout card = new VerticalLayout();
-            card.setWidth("270px");
-            card.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-
-            // 🎨 estilo tarjeta
-            card.getStyle().set("background", "white");
-            card.getStyle().set("border-radius", "18px");
-            card.getStyle().set("box-shadow", "0 8px 18px rgba(0,0,0,0.15)");
-            card.getStyle().set("padding", "15px");
-
-            // 🐶🐱 imagen
-            Image img;
-            if (m instanceof Perro) {
-                img = new Image("https://images.unsplash.com/photo-1558788353-f76d92427f16?w=400", "Perro");
-            } else {
-                img = new Image("https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400", "Gato");
-            }
-            img.setWidth("100%");
-            img.getStyle().set("border-radius", "12px");
-
-            // 📝 datos
-            H3 nombre = new H3(m.getNombre());
-            Span edad = new Span("Edad: " + m.getEdadMeses() + " meses");
-            Span peso = new Span("Peso: " + m.getPeso() + " kg");
-
-            // 🔥 botón adoptar
-            Button adoptar = new Button("Adoptar", e -> {
-                FormularioAdopcion form = new FormularioAdopcion(m);
-                form.open();
-            });
-
-            adoptar.getStyle().set("background", "#43e97b");
-            adoptar.getStyle().set("color", "white");
-            adoptar.getStyle().set("border-radius", "10px");
-
-            card.add(img, nombre, edad, peso, adoptar);
-            catalogo.add(card);
-        }
-
+        catalogo.getStyle().set("padding", "20px").set("flex-wrap", "wrap");
+        catalogo.setJustifyContentMode(JustifyContentMode.CENTER);
+        
+        mostrarMascotas(todasLasMascotas); // Carga inicial
         add(catalogo);
+    }
+
+    // Método para filtrar usando Polimorfismo
+    private void filtrar(Class<?> claseFiltro) {
+        List<Mascota> filtradas = todasLasMascotas.stream()
+                .filter(claseFiltro::isInstance)
+                .collect(Collectors.toList());
+        mostrarMascotas(filtradas);
+    }
+
+    // Método para refrescar las tarjetas en pantalla
+    private void mostrarMascotas(List<Mascota> lista) {
+        catalogo.removeAll();
+        for (Mascota m : lista) {
+            catalogo.add(new MascotaCard(m));
+        }
     }
 }
