@@ -14,13 +14,14 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+//recibe una mascota y construye una tarjeta visual con su información
 public class MascotaCard extends VerticalLayout {
 
     public MascotaCard(Mascota mascota) {
         setAlignItems(Alignment.CENTER);
         setWidth("260px");
 
-        // 🎨 TARJETA MÁS PRO (más clara)
+        // 🎨 TARJETA MÁS PRO (estilo de las tarjetas )
         getStyle()
                 .set("background-color", "#EEF6FD") // 🔥 mejora visual
                 .set("border-radius", "20px")
@@ -30,12 +31,14 @@ public class MascotaCard extends VerticalLayout {
                 .set("cursor", "pointer")
                 .set("transition", "transform 0.2s");
 
+                //efecto de la tarjeta
         getElement().addEventListener("mouseover",
                 e -> getStyle().set("transform", "scale(1.05)"));
 
         getElement().addEventListener("mouseout",
                 e -> getStyle().set("transform", "scale(1.0)"));
 
+                //IMAGEN DINAMICA (se usa polimorfismo para asisnar imagenes diferentes)
         String url = (mascota instanceof Perro)
                 ? "https://loremflickr.com/300/300/dog?lock=" + mascota.getId()
                 : "https://loremflickr.com/300/300/cat?lock=" + mascota.getId();
@@ -48,6 +51,8 @@ public class MascotaCard extends VerticalLayout {
                 .set("object-fit", "cover")
                 .set("border", "4px solid #90CAF9");
 
+
+                //informacion de la mascota
         H3 nombre = new H3(mascota.getNombre());
         nombre.getStyle().set("color", "#0D47A1");
 
@@ -62,11 +67,12 @@ public class MascotaCard extends VerticalLayout {
                 ? ((IInmunizable) mascota).obtenerEstadoSalud()
                 : "";
 
+                //vacunas
         int numVacunas = (mascota instanceof IInmunizable inmunizable)
         ? inmunizable.getNumeroVacunas()
         : 0;
 
-        // 🏷️ BADGE PRO
+        // 🏷️ BADGE (si la mascota está disponible o en proceso.)
         Span estado = new Span(numVacunas >= 3 ? "Disponible" : "En proceso");
 
         estado.getStyle()
@@ -82,6 +88,7 @@ public class MascotaCard extends VerticalLayout {
         add(foto, nombre, info);
 
         if (numVacunas >= 3) {
+                //boton adoptar
             Button adoptarBtn = new Button("Adoptar ✨",
                     e -> new FormularioAdopcion(mascota).open());
 
@@ -120,6 +127,7 @@ public class MascotaCard extends VerticalLayout {
         }
     }
 
+    //muestra informacion detallada
     private void abrirDetalleExacto(Mascota mascota, String urlImagen) {
         Dialog dialog = new Dialog();
         dialog.setMaxWidth("950px");
@@ -158,6 +166,8 @@ public class MascotaCard extends VerticalLayout {
                 ? estadoSalud.split(" • ").length
                 : (estadoSalud.equals("Esquema pendiente") ? 0 : 1);
 
+
+                //Validacion de adopcion
         if (numVacunas >= 3) {
             Button btnSolicitud = new Button(
                     "INICIAR SOLICITUD DE ADOPCIÓN",
@@ -262,6 +272,7 @@ public class MascotaCard extends VerticalLayout {
         );
         hHistoria.getStyle().set("color", "#1E88E5");
 
+        
         Paragraph historia = new Paragraph(
                 mascota.getNombre() + " es una mascota rescatada que "
                         + mascota.obtenerCuidadosEspeciales()
