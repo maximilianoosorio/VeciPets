@@ -39,9 +39,12 @@ public class MascotaCard extends VerticalLayout {
                 e -> getStyle().set("transform", "scale(1.0)"));
 
                 //IMAGEN DINAMICA (se usa polimorfismo para asisnar imagenes diferentes)
+        // Esto se usa para evitar que las imágenes sean siempre las mismas
+        int random = (int) (Math.random() * 1000);
+        // Esto se usa para evitar que las imágenes sean siempre las mismas
         String url = (mascota instanceof Perro)
-                ? "https://loremflickr.com/300/300/dog?lock=" + mascota.getId()
-                : "https://loremflickr.com/300/300/cat?lock=" + mascota.getId();
+        ? "https://loremflickr.com/300/300/dog?lock=" + random
+        : "https://loremflickr.com/300/300/cat?lock=" + random;
 
         Image foto = new Image(url, mascota.getNombre());
         foto.setWidth("150px");
