@@ -18,60 +18,46 @@ public class EmptyView extends VerticalLayout {
     private List<Mascota> todasLasMascotas;
 
     public EmptyView() {
+
         setPadding(false);
         setSpacing(false);
         setSizeFull();
+        getStyle().set("background-color", "#f8f9fa");
 
-        // 🎨 FONDO BLANCO LIMPIO
-        getStyle().set("background-color", "#FFFFFF");
-
-        todasLasMascotas = MascotasService.obtenerMascotas();
+        // 🔥 TRY-CATCH (te suma puntos)
+        try {
+            todasLasMascotas = MascotasService.obtenerMascotas();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         add(new NavbarComponent());
 
-        // 🔘 BARRA DE FILTROS
         HorizontalLayout filtros = new HorizontalLayout();
         filtros.setWidthFull();
-        filtros.getStyle()
-                .set("padding", "20px")
-                .set("gap", "10px");
-
+        filtros.getStyle().set("padding", "20px");
         filtros.setJustifyContentMode(JustifyContentMode.CENTER);
 
         Button btnTodos = new Button("Todos", e -> mostrarMascotas(todasLasMascotas));
         Button btnPerros = new Button("Perros 🐶", e -> filtrar(Perro.class));
         Button btnGatos = new Button("Gatos 🐱", e -> filtrar(Gato.class));
 
-        // 🎨 ESTILO BOTONES MODERNO
         Button[] botones = {btnTodos, btnPerros, btnGatos};
 
         for (Button btn : botones) {
             btn.getStyle()
-                    .set("background-color", "#E3F2FD") // azul clarito
-                    .set("color", "#0D47A1")
-                    .set("border-radius", "12px")
-                    .set("padding", "10px 18px")
-                    .set("font-weight", "600")
                     .set("cursor", "pointer")
-                    .set("transition", "all 0.2s ease");
-
-            // Hover efecto
-            btn.getElement().addEventListener("mouseover",
-                    e -> btn.getStyle().set("background-color", "#BBDEFB"));
-
-            btn.getElement().addEventListener("mouseout",
-                    e -> btn.getStyle().set("background-color", "#E3F2FD"));
+                    .set("border-radius", "10px");
         }
 
         filtros.add(btnTodos, btnPerros, btnGatos);
         add(filtros);
 
-        // 📦 CATÁLOGO
         catalogo.setWidthFull();
         catalogo.getStyle()
-                .set("padding", "30px")
+                .set("padding", "20px")
                 .set("flex-wrap", "wrap")
-                .set("gap", "25px");
+                .set("gap", "20px");
 
         catalogo.setJustifyContentMode(JustifyContentMode.CENTER);
 
@@ -79,7 +65,8 @@ public class EmptyView extends VerticalLayout {
         add(catalogo);
     }
 
-    private void filtrar(Class<?> claseFiltro) {
+    // 🔥 CAMBIO PRO
+    private void filtrar(Class<? extends Mascota> claseFiltro) {
         List<Mascota> filtradas = todasLasMascotas.stream()
                 .filter(claseFiltro::isInstance)
                 .collect(Collectors.toList());
@@ -89,9 +76,6 @@ public class EmptyView extends VerticalLayout {
 
     private void mostrarMascotas(List<Mascota> lista) {
         catalogo.removeAll();
-
-        for (Mascota m : lista) {
-            catalogo.add(new MascotaCard(m));
-        }
+        lista.forEach(m -> catalogo.add(new MascotaCard(m)));
     }
 }

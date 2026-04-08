@@ -21,6 +21,10 @@ public class Gato extends Mascota implements IInmunizable {
     }
 
     @Override
+public int getNumeroVacunas() {
+    return historialVacunas.size();
+}
+    @Override
     public void registrarVacuna(String nombre, LocalDateTime fecha) {
         historialVacunas.add(nombre + " (" + fecha.toLocalDate() + ")");
     }

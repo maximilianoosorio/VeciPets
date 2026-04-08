@@ -3,11 +3,16 @@ package com.example.application.views.empty;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 
 public class MascotaCard extends VerticalLayout {
 
@@ -57,9 +62,9 @@ public class MascotaCard extends VerticalLayout {
                 ? ((IInmunizable) mascota).obtenerEstadoSalud()
                 : "";
 
-        int numVacunas = (estadoSalud.contains("•"))
-                ? estadoSalud.split(" • ").length
-                : (estadoSalud.equals("Esquema pendiente") ? 0 : 1);
+        int numVacunas = (mascota instanceof IInmunizable inmunizable)
+        ? inmunizable.getNumeroVacunas()
+        : 0;
 
         // 🏷️ BADGE PRO
         Span estado = new Span(numVacunas >= 3 ? "Disponible" : "En proceso");

@@ -25,6 +25,12 @@ public class Perro extends Mascota implements IInmunizable {
         this.raza = "Mestizo";
     }
 
+    @Override
+    public int getNumeroVacunas() {
+
+    return historialVacunas.size();
+}
+
     /**
      * Implementación de polimorfismo para cuidados específicos (Criterio 2).
      */
