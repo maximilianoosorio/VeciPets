@@ -9,71 +9,108 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 
-/**
- * Componente visual de la tarjeta de mascota con lógica de validación de vacunas.
- */
 public class MascotaCard extends VerticalLayout {
 
     public MascotaCard(Mascota mascota) {
         setAlignItems(Alignment.CENTER);
         setWidth("260px");
-        
+
+        // 🎨 TARJETA MÁS PRO (más clara)
         getStyle()
-                .set("background-color", "#ffffff")
+                .set("background-color", "#EEF6FD") // 🔥 mejora visual
                 .set("border-radius", "20px")
                 .set("padding", "20px")
                 .set("margin", "10px")
-                .set("box-shadow", "0px 8px 18px rgba(0,0,0,0.15)")
+                .set("box-shadow", "0px 6px 14px rgba(0,0,0,0.12)")
                 .set("cursor", "pointer")
                 .set("transition", "transform 0.2s");
 
-        getElement().addEventListener("mouseover", e -> getStyle().set("transform", "scale(1.05)"));
-        getElement().addEventListener("mouseout", e -> getStyle().set("transform", "scale(1.0)"));
+        getElement().addEventListener("mouseover",
+                e -> getStyle().set("transform", "scale(1.05)"));
 
-        String url = (mascota instanceof Perro) 
-            ? "https://loremflickr.com/300/300/dog?lock=" + mascota.getId()
-            : "https://loremflickr.com/300/300/cat?lock=" + mascota.getId();
-            
+        getElement().addEventListener("mouseout",
+                e -> getStyle().set("transform", "scale(1.0)"));
+
+        String url = (mascota instanceof Perro)
+                ? "https://loremflickr.com/300/300/dog?lock=" + mascota.getId()
+                : "https://loremflickr.com/300/300/cat?lock=" + mascota.getId();
+
         Image foto = new Image(url, mascota.getNombre());
         foto.setWidth("150px");
         foto.setHeight("150px");
         foto.getStyle()
                 .set("border-radius", "50%")
                 .set("object-fit", "cover")
-                .set("border", "4px solid #BBDEFB");
+                .set("border", "4px solid #90CAF9");
 
         H3 nombre = new H3(mascota.getNombre());
-        nombre.getStyle().set("color", "#1565C0");
+        nombre.getStyle().set("color", "#0D47A1");
 
         Span info = new Span(mascota.getEdadMeses() + " meses | " + mascota.getPeso() + " kg");
-        info.getStyle().set("color", "#757575").set("font-weight", "600");
+        info.getStyle()
+                .set("color", "#37474F")
+                .set("font-weight", "600");
 
         this.addClickListener(e -> abrirDetalleExacto(mascota, url));
 
-        // --- LÓGICA DE VALIDACIÓN DE VACUNAS ---
-        String estadoSalud = (mascota instanceof IInmunizable) ? ((IInmunizable) mascota).obtenerEstadoSalud() : "";
-        // Contamos las vacunas separadas por el punto " • "
-        int numVacunas = (estadoSalud.contains("•")) ? estadoSalud.split(" • ").length : (estadoSalud.equals("Esquema pendiente") ? 0 : 1);
+        String estadoSalud = (mascota instanceof IInmunizable)
+                ? ((IInmunizable) mascota).obtenerEstadoSalud()
+                : "";
+
+        int numVacunas = (estadoSalud.contains("•"))
+                ? estadoSalud.split(" • ").length
+                : (estadoSalud.equals("Esquema pendiente") ? 0 : 1);
+
+        // 🏷️ BADGE PRO
+        Span estado = new Span(numVacunas >= 3 ? "Disponible" : "En proceso");
+
+        estado.getStyle()
+                .set("background", numVacunas >= 3 ? "#C8E6C9" : "#FFE0B2")
+                .set("color", "#333")
+                .set("font-size", "12px")
+                .set("padding", "4px 10px")
+                .set("border-radius", "20px")
+                .set("font-weight", "600");
+
+        addComponentAsFirst(estado);
 
         add(foto, nombre, info);
 
-        // CONDICIÓN: Si tiene 3 o más vacunas se puede adoptar
         if (numVacunas >= 3) {
-            Button adoptarBtn = new Button("Adoptar ✨", e -> new FormularioAdopcion(mascota).open());
+            Button adoptarBtn = new Button("Adoptar ✨",
+                    e -> new FormularioAdopcion(mascota).open());
+
             adoptarBtn.getStyle()
                     .set("background-color", "#1E88E5")
                     .set("color", "white")
                     .set("border-radius", "12px")
                     .set("width", "100%")
-                    .set("font-weight", "bold");
-            add(adoptarBtn);
-        } else {
-            // Aviso de que no está listo
-            Span avisoSalud = new Span(VaadinIcon.WARNING.create(), new Span(" Salud en proceso"));
-            avisoSalud.getStyle()
-                    .set("color", "#E53935")
                     .set("font-weight", "bold")
-                    .set("padding", "10px");
+                    .set("box-shadow", "0px 4px 10px rgba(0,0,0,0.15)")
+                    .set("transition", "all 0.2s ease");
+
+            // 🔥 hover
+            adoptarBtn.getElement().addEventListener("mouseover",
+                    e -> adoptarBtn.getStyle().set("transform", "scale(1.05)"));
+
+            adoptarBtn.getElement().addEventListener("mouseout",
+                    e -> adoptarBtn.getStyle().set("transform", "scale(1)"));
+
+            add(adoptarBtn);
+
+        } else {
+            Span avisoSalud = new Span(
+                    VaadinIcon.WARNING.create(),
+                    new Span(" Salud en proceso")
+            );
+
+            avisoSalud.getStyle()
+                    .set("color", "#EF5350")
+                    .set("background", "#FFEBEE")
+                    .set("border-radius", "8px")
+                    .set("padding", "6px 10px")
+                    .set("font-weight", "bold");
+
             add(avisoSalud);
         }
     }
@@ -85,36 +122,62 @@ public class MascotaCard extends VerticalLayout {
         HorizontalLayout mainPanel = new HorizontalLayout();
         mainPanel.setSpacing(true);
 
-        // --- COLUMNA IZQUIERDA ---
         VerticalLayout leftCol = new VerticalLayout();
         leftCol.setWidth("400px");
         leftCol.setAlignItems(Alignment.CENTER);
-        leftCol.getStyle().set("background-color", "#F5F9FF").set("border-radius", "15px");
+        leftCol.getStyle()
+                .set("background-color", "#F5F9FF")
+                .set("border-radius", "15px");
 
         H2 titulo = new H2(mascota.getNombre().toUpperCase() + " (ADOPCIÓN)");
         titulo.getStyle().set("color", "#0D47A1");
 
-        String razaStr = (mascota instanceof Perro) ? ((Perro) mascota).getRaza() : "Gato Doméstico";
+        String razaStr = (mascota instanceof Perro)
+                ? ((Perro) mascota).getRaza()
+                : "Gato Doméstico";
+
         Span sub = new Span(razaStr + " | " + mascota.getEdadMeses() + " meses");
         sub.getStyle().set("color", "#546E7A");
 
         Image fotoGrande = new Image(urlImagen, mascota.getNombre());
         fotoGrande.setWidth("320px");
-        fotoGrande.getStyle().set("border-radius", "15px").set("border", "5px solid white");
+        fotoGrande.getStyle()
+                .set("border-radius", "15px")
+                .set("border", "5px solid white");
 
-        // VALIDACIÓN PARA EL BOTÓN INTERNO
-        String estadoSalud = (mascota instanceof IInmunizable) ? ((IInmunizable) mascota).obtenerEstadoSalud() : "";
-        int numVacunas = (estadoSalud.contains("•")) ? estadoSalud.split(" • ").length : (estadoSalud.equals("Esquema pendiente") ? 0 : 1);
+        String estadoSalud = (mascota instanceof IInmunizable)
+                ? ((IInmunizable) mascota).obtenerEstadoSalud()
+                : "";
+
+        int numVacunas = (estadoSalud.contains("•"))
+                ? estadoSalud.split(" • ").length
+                : (estadoSalud.equals("Esquema pendiente") ? 0 : 1);
 
         if (numVacunas >= 3) {
-            Button btnSolicitud = new Button("INICIAR SOLICITUD DE ADOPCIÓN", VaadinIcon.CLIPBOARD_CHECK.create());
-            btnSolicitud.getStyle().set("background-color", "#1E88E5").set("color", "white").set("margin-top", "15px").set("font-weight", "bold");
+            Button btnSolicitud = new Button(
+                    "INICIAR SOLICITUD DE ADOPCIÓN",
+                    VaadinIcon.CLIPBOARD_CHECK.create()
+            );
+
+            btnSolicitud.getStyle()
+                    .set("background-color", "#1E88E5")
+                    .set("color", "white")
+                    .set("margin-top", "15px")
+                    .set("font-weight", "bold");
+
             btnSolicitud.setWidthFull();
-            btnSolicitud.addClickListener(e -> { dialog.close(); new FormularioAdopcion(mascota).open(); });
+
+            btnSolicitud.addClickListener(e -> {
+                dialog.close();
+                new FormularioAdopcion(mascota).open();
+            });
+
             leftCol.add(titulo, sub, fotoGrande, btnSolicitud);
         } else {
-            // Cuadro rojo informativo si no tiene vacunas completas
-            Div msgError = new Div(new Span("⚠️ No apto para adopción inmediata. Debe completar su esquema de vacunación (Mínimo 3)."));
+            Div msgError = new Div(
+                    new Span("⚠️ No apto para adopción inmediata. Debe completar su esquema de vacunación (Mínimo 3).")
+            );
+
             msgError.getStyle()
                     .set("color", "#C62828")
                     .set("background", "#FFEBEE")
@@ -123,44 +186,81 @@ public class MascotaCard extends VerticalLayout {
                     .set("margin-top", "15px")
                     .set("font-size", "0.9em")
                     .set("font-weight", "600");
+
             leftCol.add(titulo, sub, fotoGrande, msgError);
         }
 
-        Button btnPreguntar = new Button("WHATSAPP DE CONTACTO", VaadinIcon.CHAT.create());
-        btnPreguntar.getStyle().set("background-color", "#25D366").set("color", "white").set("font-weight", "bold");
+        Button btnPreguntar = new Button(
+                "WHATSAPP DE CONTACTO",
+                VaadinIcon.CHAT.create()
+        );
+
+        btnPreguntar.getStyle()
+                .set("background-color", "#25D366")
+                .set("color", "white")
+                .set("font-weight", "bold");
+
         btnPreguntar.setWidthFull();
+
         btnPreguntar.addClickListener(e -> {
-            String mensaje = "Hola VeciPets, me interesa saber cuándo estará listo " + mascota.getNombre() + " para adopción.";
-            String urlWa = "https://wa.me/573000000000?text=" + mensaje.replace(" ", "%20");
+            String mensaje = "Hola VeciPets, me interesa saber cuándo estará listo "
+                    + mascota.getNombre() + " para adopción";
+
+            String urlWa = "https://wa.me/573000000000?text="
+                    + mensaje.replace(" ", "%20");
+
             UI.getCurrent().getPage().open(urlWa, "_blank");
         });
 
         leftCol.add(btnPreguntar);
 
-        // --- COLUMNA DERECHA ---
         VerticalLayout rightCol = new VerticalLayout();
 
-        H4 hSalud = new H4(VaadinIcon.HEART.create(), new Span(" ESTADO DE SALUD"));
+        H4 hSalud = new H4(
+                VaadinIcon.HEART.create(),
+                new Span(" ESTADO DE SALUD")
+        );
         hSalud.getStyle().set("color", "#1E88E5");
-        
+
         VerticalLayout healthBox = new VerticalLayout();
-        healthBox.getStyle().set("background-color", "#E3F2FD").set("border-radius", "10px").set("border", "1px solid #BBDEFB");
-        
+        healthBox.getStyle()
+                .set("background-color", "#E3F2FD")
+                .set("border-radius", "10px")
+                .set("border", "1px solid #BBDEFB");
+
         healthBox.add(
-            new Span("💉 Vacunas registradas: " + (estadoSalud.isEmpty() ? "Ninguna" : estadoSalud)), 
-            new Span("✅ Desparasitado: Al día"), 
-            new Span("✅ Microchip: Registrado")
+                new Span("💉 Vacunas registradas: " + (estadoSalud.isEmpty() ? "Ninguna" : estadoSalud)),
+                new Span("✅ Desparasitado: Al día"),
+                new Span("✅ Microchip: Registrado")
         );
 
-        H4 hConoceme = new H4(VaadinIcon.INFO_CIRCLE.create(), new Span(" CONÓCEME"));
+        H4 hConoceme = new H4(
+                VaadinIcon.INFO_CIRCLE.create(),
+                new Span(" CONÓCEME")
+        );
         hConoceme.getStyle().set("color", "#1E88E5");
-        VerticalLayout infoBox = new VerticalLayout();
-        infoBox.getStyle().set("background-color", "#F5F5F5").set("border-radius", "10px");
-        infoBox.add(new Span("👤 Carácter: Muy sociable"), new Span("⚡ Energía: Alta"), new Span("🏠 Entorno: Casa o Apto"));
 
-        H4 hHistoria = new H4(VaadinIcon.BOOK.create(), new Span(" HISTORIA"));
+        VerticalLayout infoBox = new VerticalLayout();
+        infoBox.getStyle()
+                .set("background-color", "#F5F5F5")
+                .set("border-radius", "10px");
+
+        infoBox.add(
+                new Span("👤 Carácter: Muy sociable"),
+                new Span("⚡ Energía: Alta"),
+                new Span("🏠 Entorno: Casa o Apto")
+        );
+
+        H4 hHistoria = new H4(
+                VaadinIcon.BOOK.create(),
+                new Span(" HISTORIA")
+        );
         hHistoria.getStyle().set("color", "#1E88E5");
-        Paragraph historia = new Paragraph(mascota.getNombre() + " es una mascota rescatada que " + mascota.obtenerCuidadosEspeciales());
+
+        Paragraph historia = new Paragraph(
+                mascota.getNombre() + " es una mascota rescatada que "
+                        + mascota.obtenerCuidadosEspeciales()
+        );
 
         rightCol.add(hSalud, healthBox, hConoceme, infoBox, hHistoria, historia);
 
